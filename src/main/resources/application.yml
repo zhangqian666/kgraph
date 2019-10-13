@@ -1,0 +1,19 @@
+server:
+  port: 8021
+  tomcat:
+    uri-encoding: utf-8
+
+
+#slf4j 配置
+logging:
+  file: /develope/kgraph/logger.log
+  level:
+    root: info
+spring:
+  rabbitmq:
+    host: connect-ai.cn
+    port: 5672
+    username: guest
+    password: guest
+
+#rabbitmq
