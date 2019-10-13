@@ -13,6 +13,7 @@ import java.io.IOException;
 public class WsMessageUtil {
 
     public static boolean sendMessage(Session session, String content) {
+        if (session == null) return false;
         try {
             session.getBasicRemote().sendText(content);
             return true;
