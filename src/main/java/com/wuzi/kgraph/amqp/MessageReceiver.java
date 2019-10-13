@@ -33,18 +33,19 @@ public class MessageReceiver {
         }
         log.info(String.format("DIRECT_QUEUE2收到消息：%s", messageBody));
         Gson gson = new Gson();
-        if (messageBody != null) {
+        if (!messageBody.isEmpty()) {
             RbUserBean rbUserBean = gson.fromJson(messageBody, RbUserBean.class);
             Session session = null;
             try {
                 session = Contants.sWebSocketServers.get(Contants.sWebSocketUserNames.get(rbUserBean.getUserName()));
+                WsMessageUtil.sendMessage(
+                        session, messageBody);
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
 
-            WsMessageUtil.sendMessage(
-                    session, messageBody);
+
         }
     }
 
