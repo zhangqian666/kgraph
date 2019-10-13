@@ -10,6 +10,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import javax.websocket.Session;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -32,10 +33,19 @@ public class MessageReceiver {
         }
         log.info(String.format("DIRECT_QUEUE2收到消息：%s", messageBody));
         Gson gson = new Gson();
-        RbUserBean rbUserBean = gson.fromJson(messageBody, RbUserBean.class);
-        WsMessageUtil.sendMessage(
-                Contants.sWebSocketServers.get(Contants.sWebSocketUserNames.get(rbUserBean.getUserName()))
-                , messageBody);
+        if (messageBody != null) {
+            RbUserBean rbUserBean = gson.fromJson(messageBody, RbUserBean.class);
+            Session session = null;
+            try {
+                session = Contants.sWebSocketServers.get(Contants.sWebSocketUserNames.get(rbUserBean.getUserName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+
+            WsMessageUtil.sendMessage(
+                    session, messageBody);
+        }
     }
 
 }
