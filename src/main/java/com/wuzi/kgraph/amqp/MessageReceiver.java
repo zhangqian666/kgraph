@@ -36,13 +36,14 @@ public class MessageReceiver {
         if (!messageBody.isEmpty()) {
             RbUserBean rbUserBean = gson.fromJson(messageBody, RbUserBean.class);
             Session session = null;
+            if (Contants.sWebSocketServers.isEmpty())
+                return;
             try {
                 session = Contants.sWebSocketServers.get(Contants.sWebSocketUserNames.get(rbUserBean.getUserName()));
                 WsMessageUtil.sendMessage(
                         session, messageBody);
             } catch (Exception e) {
                 e.printStackTrace();
-                return;
             }
 
 
