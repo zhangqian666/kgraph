@@ -7,6 +7,7 @@ import com.wuzi.kgraph.bean.RbUserBean;
 import com.wuzi.kgraph.bean.ResultBean;
 import com.wuzi.kgraph.bean.UserInfo;
 import com.wuzi.kgraph.utils.Contants;
+import com.wuzi.kgraph.utils.WeChatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,8 @@ public class WsServer {
         UserInfo userInfo = new UserInfo();
         userInfo.setWsServer(this);
         userInfo.setWsSession(session);
-        userInfo.setWx_openid(openid);
+        String wxopenid = WeChatUtils.getData(openid);
+        userInfo.setWx_openid(wxopenid);
         Contants.idWithUserMap.put(session.getId(), userInfo);
         log.info("有人链接上---" + idWithUserMap.size());
 
