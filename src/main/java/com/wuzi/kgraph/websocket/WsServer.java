@@ -5,6 +5,7 @@ import com.wuzi.kgraph.amqp.DirectConfig;
 import com.wuzi.kgraph.amqp.MessageSender;
 import com.wuzi.kgraph.bean.RbUserBean;
 import com.wuzi.kgraph.bean.ResultBean;
+import com.wuzi.kgraph.bean.UserInfo;
 import com.wuzi.kgraph.utils.Contants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import static com.wuzi.kgraph.utils.Contants.sWebSocketServers;
-import static com.wuzi.kgraph.utils.Contants.sWebSocketUserNames;
+import static com.wuzi.kgraph.utils.Contants.idWithUserMap;
 
 /**
  * @Author 张迁-zhangqian
@@ -26,12 +26,11 @@ import static com.wuzi.kgraph.utils.Contants.sWebSocketUserNames;
 
 @Slf4j
 @Component
-@ServerEndpoint("/question/{content}")
+@ServerEndpoint("/question/{openid}")
 public class WsServer {
 
     //  这里使用静态，让 service 属于类
     private static MessageSender messageSender;
-    private String userName;
 
     // 注入的时候，给类的 service 注入
     @Autowired
@@ -40,33 +39,33 @@ public class WsServer {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("content") String userName) {
-        this.userName = userName;
-        sWebSocketServers.put(this, session);
-        sWebSocketUserNames.put(this.userName, this);
-        log.info("有人链接上---" + sWebSocketServers.size());
+    public void onOpen(Session session, @PathParam("openid") String openid) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setWsServer(this);
+        userInfo.setWsSession(session);
+        Contants.idWithUserMap.put(session.getId(), userInfo);
+        log.info("有人链接上---" + idWithUserMap.size());
 
 
         ResultBean<String> stringResultBean = new ResultBean<>();
         stringResultBean.setCode(200);
-        stringResultBean.setData("你已经链接上我了小兄弟，:" + this.userName);
+        stringResultBean.setData("你已经链接上我了小兄弟，:" + userInfo.getName());
         WsMessageUtil.sendMessage(session, new Gson().toJson(stringResultBean));
     }
 
 
     @OnMessage
-    public void onMessage(String message) {
+    public void onMessage(Session session, String message) {
         log.info("我收到了消息" + message);
 
-
-        Session mSession = sWebSocketServers.get(this);
         ResultBean<String> stringResultBean = new ResultBean<>();
         stringResultBean.setCode(200);
         stringResultBean.setData("我收到了你的消息：" + message);
 
-        WsMessageUtil.sendMessage(mSession, new Gson().toJson(stringResultBean));
+        WsMessageUtil.sendMessage(session, new Gson().toJson(stringResultBean));
+
         RbUserBean rbUserBean = new RbUserBean();
-        rbUserBean.setUserName(userName);
+        rbUserBean.setQaId(session.getId());
         rbUserBean.setQuestion(message);
         Gson gson = new Gson();
         String questionStr = gson.toJson(rbUserBean);
@@ -75,10 +74,10 @@ public class WsServer {
     }
 
     @OnClose
-    public void onClose() {
-        log.error(String.format("有人断开连接----名字叫：%s", userName));
-        sWebSocketServers.remove(this);
-        log.error(String.format("有人断开连接----当前剩余链接数量：%s", sWebSocketServers.size()));
+    public void onClose(Session session) {
+        log.error(String.format("有人断开连接----名字叫：%s", session.getId()));
+        idWithUserMap.remove(session.getId());
+        log.error(String.format("有人断开连接----当前剩余链接数量：%s", idWithUserMap.size()));
     }
 
     @OnError

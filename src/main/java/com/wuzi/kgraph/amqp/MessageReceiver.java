@@ -2,9 +2,9 @@ package com.wuzi.kgraph.amqp;
 
 import com.google.gson.Gson;
 import com.wuzi.kgraph.bean.RbUserBean;
+import com.wuzi.kgraph.bean.UserInfo;
 import com.wuzi.kgraph.utils.Contants;
 import com.wuzi.kgraph.websocket.WsMessageUtil;
-import com.wuzi.kgraph.websocket.WsServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -33,15 +33,18 @@ public class MessageReceiver {
         }
         log.info(String.format("DIRECT_QUEUE2收到消息：%s", messageBody));
         Gson gson = new Gson();
-        if (!messageBody.isEmpty()) {
+        if (messageBody != null && !messageBody.equals("")) {
             RbUserBean rbUserBean = gson.fromJson(messageBody, RbUserBean.class);
             Session session = null;
-            if (Contants.sWebSocketServers.isEmpty())
+            if (Contants.idWithUserMap.isEmpty())
                 return;
             try {
-                session = Contants.sWebSocketServers.get(Contants.sWebSocketUserNames.get(rbUserBean.getUserName()));
-                WsMessageUtil.sendMessage(
-                        session, messageBody);
+                UserInfo userInfo = Contants.idWithUserMap.get(rbUserBean.getQaId());
+                if (userInfo != null) {
+                    session = Contants.idWithUserMap.get(userInfo.getWsSession().getId()).getWsSession();
+                    WsMessageUtil.sendMessage(
+                            session, messageBody);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

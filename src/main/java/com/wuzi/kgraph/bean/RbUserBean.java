@@ -12,14 +12,14 @@ import lombok.Setter;
 @Setter
 @Getter
 public class RbUserBean {
-    private String userName;
+    private String qaId;
     private String question;
     private String answer;
 
     @Override
     public String toString() {
         return "RbUserBean{" +
-                "userName='" + userName + '\'' +
+                "qaId='" + qaId + '\'' +
                 ", question='" + question + '\'' +
                 ", answer='" + answer + '\'' +
                 '}';
