@@ -20,6 +20,7 @@ public class UserInfo {
     String wx_openid;
     WsServer wsServer;
     Session wsSession;
+    String openid;
 
     @Override
     public String toString() {
@@ -28,6 +29,7 @@ public class UserInfo {
                 ", wx_openid='" + wx_openid + '\'' +
                 ", wsServer=" + wsServer +
                 ", wsSession=" + wsSession +
+                ", openid='" + openid + '\'' +
                 '}';
     }
 }

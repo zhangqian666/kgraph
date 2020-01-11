@@ -44,6 +44,7 @@ public class WsServer {
         UserInfo userInfo = new UserInfo();
         userInfo.setWsServer(this);
         userInfo.setWsSession(session);
+        userInfo.setOpenid(openid);
         String wxopenid = WeChatUtils.getData(openid);
         userInfo.setWx_openid(wxopenid);
         Contants.idWithUserMap.put(session.getId(), userInfo);
@@ -53,7 +54,7 @@ public class WsServer {
         log.info("userinfo  : " + userInfo.toString());
         ResultBean<String> stringResultBean = new ResultBean<>();
         stringResultBean.setCode(200);
-        stringResultBean.setData("你已经链接上我了小兄弟，:" + userInfo.getName());
+        stringResultBean.setData("你已经链接上我了小兄弟，:" + userInfo.getWx_openid());
         WsMessageUtil.sendMessage(session, new Gson().toJson(stringResultBean));
     }
 
