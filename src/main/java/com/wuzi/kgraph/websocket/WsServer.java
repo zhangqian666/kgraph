@@ -43,10 +43,12 @@ public class WsServer {
         UserInfo userInfo = new UserInfo();
         userInfo.setWsServer(this);
         userInfo.setWsSession(session);
+        userInfo.setWx_openid(openid);
         Contants.idWithUserMap.put(session.getId(), userInfo);
         log.info("有人链接上---" + idWithUserMap.size());
 
 
+        log.info("userinfo  : " + userInfo.toString());
         ResultBean<String> stringResultBean = new ResultBean<>();
         stringResultBean.setCode(200);
         stringResultBean.setData("你已经链接上我了小兄弟，:" + userInfo.getName());
